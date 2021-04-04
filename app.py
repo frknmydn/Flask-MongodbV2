@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pymongo
-
+import hashlib
 from User import User
 
 app = Flask(__name__)
@@ -9,6 +9,7 @@ app = Flask(__name__)
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+
         error = None
         name = request.form["name"]
         surname = request.form["surname"]
@@ -16,10 +17,16 @@ def register():
         password = request.form["password"]
         password_val = request.form["password_val"]
 
+
+
+
         mycollection = mydb["Users"]
 
         if password == password_val and name != "" and surname != "" and email != "" and len(password) > 8:
-            user = User(name, surname, email, password)
+
+            encryptedPassword = hashlib.md5(password.encode("utf-8")).hexdigest()
+
+            user = User(name, surname, email, encryptedPassword)
             mycollection.insert_one(user.user_json())
             error = "Kayıt olundu."
 
@@ -33,6 +40,7 @@ def signin():
     if request.method == "POST":
         email = request.form["email_signin"]
         password = request.form["password_signin"]
+        encryptedPassword = hashlib.md5(password.encode("utf-8")).hexdigest()
 
         mycollection = mydb["Users"]
 
@@ -43,7 +51,7 @@ def signin():
         })
 
         if result:
-            if result["password"] == password:
+            if result["password"] == encryptedPassword:
                 return redirect(url_for("index", name=result["name"]))
     return render_template("signin.html")
 
