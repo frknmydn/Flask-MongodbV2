@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pymongo
-import hashlib
+import bcrypt
 from User import User
 
 app = Flask(__name__)
@@ -20,11 +20,12 @@ def register():
 
 
 
+
         mycollection = mydb["Users"]
 
         if password == password_val and name != "" and surname != "" and email != "" and len(password) > 8:
 
-            encryptedPassword = hashlib.md5(password.encode("utf-8")).hexdigest()
+            encryptedPassword = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt(14))
 
             user = User(name, surname, email, encryptedPassword)
             mycollection.insert_one(user.user_json())
@@ -40,7 +41,7 @@ def signin():
     if request.method == "POST":
         email = request.form["email_signin"]
         password = request.form["password_signin"]
-        encryptedPassword = hashlib.md5(password.encode("utf-8")).hexdigest()
+
 
         mycollection = mydb["Users"]
 
@@ -49,10 +50,14 @@ def signin():
                 "$eq": email
             }
         })
-
         if result:
-            if result["password"] == encryptedPassword:
+            if bcrypt.checkpw(password.encode("utf-8"),result["password"]):
                 return redirect(url_for("index", name=result["name"]))
+
+
+#        if result:
+#           if result["password"] == encryptedPassword:
+#               return redirect(url_for("index", name=result["name"]))
     return render_template("signin.html")
 
 @app.route("/index",methods=["GET"])
