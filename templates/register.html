@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Flask Tutorial</title>
+</head>
+<body>
+    <h1>Welcome to my site</h1>
+    <form method="POST" action="register">
+        <input type="text" name="name" placeholder= "Adınızı girin."/>
+        <input type="text" name="surname" placeholder= "Soyadınızı girin."/>
+        <input type="text" name="email" placeholder="Emailinizi girin">
+        <input type="password" name="password" placeholder="Şifre belirleyin">
+        <input type="password" name="password_val" placeholder="Tekrar">
+
+
+        <input type="submit" name="button" value="Go to page 2"/>
+    </form>
+    <p>{{error}}</p>
+</body>
+</html>
